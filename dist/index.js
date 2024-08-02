@@ -151,19 +151,14 @@ const getMinikubeArch = () => {
     switch ((0, os_1.arch)()) {
         case 'x64':
             return 'amd64';
-            break;
         case 'arm64':
             return 'arm64';
-            break;
         case 'arm':
             return 'arm';
-            break;
         case 's390x':
             return 's390x';
-            break;
         case 'ppc64':
             return 'ppc64le';
-            break;
         default:
             throw new Error(`Machine is of arch ${(0, os_1.arch)()}, which isn't supported by minikube.`);
     }
@@ -175,7 +170,11 @@ const downloadMinikube = (version, installPath) => __awaiter(void 0, void 0, voi
         installPath = (0, path_1.join)((0, os_1.homedir)(), 'bin');
     }
     yield (0, io_1.mkdirP)(installPath);
-    yield (0, exec_1.exec)('chmod', ['+x', downloadPath]);
+    yield (0, exec_1.exec)('chmod', ['+x', downloadPath], {
+        silent: true,
+        failOnStdErr: true,
+        ignoreReturnCode: true,
+    });
     yield (0, io_1.cp)(downloadPath, (0, path_1.join)(installPath, 'minikube'));
     yield (0, io_1.rmRF)(downloadPath);
     (0, core_1.addPath)(installPath);
@@ -209,6 +208,7 @@ const setArgs = (args) => {
         { key: 'mount-path', flag: '--mount-string' },
         { key: 'network-plugin', flag: '--network-plugin' },
         { key: 'wait', flag: '--wait' },
+        { key: 'hyperv-virtual-switch', flag: '--hyperv-virtual-switch' },
     ];
     inputs.forEach((input) => {
         const value = (0, core_1.getInput)(input.key);
