@@ -77,6 +77,10 @@ inputs:
     description: 'Enable insecure communication with the given registries'
     required: false
     default: ''
+  hyperv-virtual-switch:
+    description: 'The Hyper-V switch to attach the VM to'
+    required: false
+    default: ''
   start-args:
     description: 'Any flags you would regularly pass into minikube via CLI, seperated by space'
     required: false

@@ -84,6 +84,40 @@ jobs:
             nslookup \
             -- \
             nslookup kubernetes.default.svc.cluster.local
+  
+  test-windows-docker-driver:
+    runs-on: windows-latest
+    steps:
+      - name: Enable WSL 2
+        shell: powershell
+        run: |
+          wsl.exe --set-default-version 2
+          wsl.exe --install 
+      - name: Install Gsudo
+        shell: powershell
+        run: |
+          choco install -y gsudo
+      - name: Install Docker
+        shell: powershell
+        run: |
+          & C:\tools\gsudo\v2.5.1\sudo.exe choco install docker-desktop --not-silent --install-arguments='--no-windows-containers' --params='--no-windows-containers'
+          docker --version
+          docker info
+          docker ps
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - name: Switch to Linux Containers
+        shell: powershell
+        run: |
+          type $ENV:UserProfile\.docker\config.json
+          & $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchLinuxEngine -Verbose
+          type $ENV:UserProfile\.docker\config.json
+      - uses: ./
+        with:
+          driver: docker
+          start-args: '--alsologtostderr'
+      - run: |
+          kubectl --namespace=kube-system rollout status deployment/coredns --timeout=60s --watch
+
   test-podman-driver:
     runs-on: ubuntu-24.04
     steps:

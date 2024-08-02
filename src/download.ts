@@ -1,8 +1,8 @@
 import {addPath} from '@actions/core'
 import {exec} from '@actions/exec'
-import {mkdirP, cp, rmRF} from '@actions/io'
+import {cp, mkdirP, rmRF} from '@actions/io'
 import {downloadTool} from '@actions/tool-cache'
-import {arch, homedir, platform as getPlatform} from 'os'
+import {arch, platform as getPlatform, homedir} from 'os'
 import {join} from 'path'
 
 export const getDownloadURL = (version: string): string => {
@@ -24,19 +24,14 @@ const getMinikubeArch = (): string => {
   switch (arch()) {
     case 'x64':
       return 'amd64'
-      break
     case 'arm64':
       return 'arm64'
-      break
     case 'arm':
       return 'arm'
-      break
     case 's390x':
       return 's390x'
-      break
     case 'ppc64':
       return 'ppc64le'
-      break
     default:
       throw new Error(
         `Machine is of arch ${arch()}, which isn't supported by minikube.`
@@ -54,7 +49,11 @@ export const downloadMinikube = async (
     installPath = join(homedir(), 'bin')
   }
   await mkdirP(installPath)
-  await exec('chmod', ['+x', downloadPath])
+  await exec('chmod', ['+x', downloadPath], {
+    silent: true,
+    failOnStdErr: true,
+    ignoreReturnCode: true,
+  })
   await cp(downloadPath, join(installPath, 'minikube'))
   await rmRF(downloadPath)
   addPath(installPath)
